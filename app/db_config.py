@@ -1,0 +1,1 @@
+DB_PASSWORD = 'BbsGIlZJ7uEGRRBGukqjCWzU!'
