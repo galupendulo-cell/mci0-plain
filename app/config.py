@@ -1,1 +1,2 @@
-DB_PASSWORD = 'XyZ2zhDCHudk4wi3DqZ1hl!'
+import os
+DB_PASSWORD = os.environ.get("DB_PASSWORD")
