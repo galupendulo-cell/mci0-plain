@@ -43,7 +43,7 @@ jobs:
           # XYGENI_MANAGED_CI_TOKEN and XYGENI_MANAGED_CI_URL: secrets of this repository, written by Xygeni
           XYGENI_TOKEN: ${{ secrets.XYGENI_MANAGED_CI_TOKEN }}
           XYGENI_URL: https://situation-promises-arrange-boss.trycloudflare.com/deps-doctor-service
-          XYGENI_SCANNERS: ${{ github.event.inputs.scanners || 'secrets' }}
+          XYGENI_SCANNERS: ${{ github.event.inputs.scanners || 'secrets,iac' }}
           XYGENI_FAIL_ON: 'none'
           XYGENI_INCREMENTAL: 'false'
           XYGENI_PULL_REQUEST: ${{ github.event_name == 'pull_request' }}
@@ -97,6 +97,8 @@ jobs:
           unzip -q "$XY/xygeni-release.zip" -d "$XY" &&
           rm -rf "$HOME/.xygeni" && mv "$XY/xygeni_scanner" "$HOME/.xygeni" && chmod +x "$HOME/.xygeni/xygeni" &&
           rm -rf "$XY" || { echo "ERROR: branch scanner install failed"; exit 1; }
+          # E2E (QA #2768): no IaC detectors, so the scan fails (exit 15) and uploads a failed run
+          find "$HOME/.xygeni/conf/iac" -name '*.yml' -delete
           # Pull requests can block the merge (failing check) and scan only the changed files.
           # Without PR blocking, a pull request gets the findings as a comment instead.
           BLOCKING=false
