@@ -97,8 +97,8 @@ jobs:
           unzip -q "$XY/xygeni-release.zip" -d "$XY" &&
           rm -rf "$HOME/.xygeni" && mv "$XY/xygeni_scanner" "$HOME/.xygeni" && chmod +x "$HOME/.xygeni/xygeni" &&
           rm -rf "$XY" || { echo "ERROR: branch scanner install failed"; exit 1; }
-          # E2E (QA #2768): no IaC detectors, so the scan fails (exit 15) and uploads a failed run
-          find "$HOME/.xygeni/conf/iac" -name '*.yml' -delete
+          # E2E (QA #2768): a corrupt IaC detector makes the IaC scan fail (exit 2); the run still uploads, as failed
+          printf 'id: broken\n  type: [unclosed\n: :\n' > "$HOME/.xygeni/conf/iac/cf/zz_broken.yml"
           # Pull requests can block the merge (failing check) and scan only the changed files.
           # Without PR blocking, a pull request gets the findings as a comment instead.
           BLOCKING=false
